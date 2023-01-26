@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -23,13 +24,15 @@ enum InternetStatusConnection {
 }
 
 class NetworkTypeReachability {
-  static NetworkTypeReachability _instance;
-  factory NetworkTypeReachability() {
-    DartPingIOS.register();
-    _instance ??= NetworkTypeReachability._();
-    return _instance;
+  static final NetworkTypeReachability _instance = NetworkTypeReachability._();
+
+  NetworkTypeReachability._() {
+    if (Platform.isIOS) {
+      DartPingIOS.register();
+    }
   }
-  NetworkTypeReachability._();
+
+  static NetworkTypeReachability get instance => _instance;
 
   static const MethodChannel _channel =
       MethodChannel('flutter_plugin_reachability');
@@ -37,7 +40,7 @@ class NetworkTypeReachability {
   static const EventChannel _eventChannel =
       EventChannel("flutter_plugin_reachability_status");
 
-  Stream<NetworkStatus> _onNetworkStateChanged;
+  Stream<NetworkStatus>? _onNetworkStateChanged;
 
   /// currentNetworkStatus obtain the status network in live
   Stream<NetworkStatus> get onNetworkStateChanged {
@@ -45,7 +48,7 @@ class NetworkTypeReachability {
         .receiveBroadcastStream()
         .map((event) => event.toString())
         .map(_convertFromState);
-    return _onNetworkStateChanged;
+    return _onNetworkStateChanged!;
   }
 
   /// currentNetworkStatus obtain the status network
@@ -85,30 +88,29 @@ class NetworkTypeReachability {
     timeOutIntents = 5,
     showLogs = false,
   }) async {
-    Ping ping = Ping(urlTest, count: countPing);
-    PingData pingData = await ping.stream.last
-        .timeout(
-      Duration(seconds: timeOutIntents),
-    )
-        .catchError((e) {
-      return null;
-    }).onError((error, stackTrace) {
-      return null;
-    });
-    if (showLogs) {
-      log('Running PING ===== > $pingData');
-    }
     try {
-      if (pingData.summary.transmitted == pingData.summary.received) {
-        return InternetStatusConnection.withInternet;
-      } else if (pingData.summary.transmitted > 0 &&
-          pingData.summary.received > 0) {
-        return InternetStatusConnection.unstableInternet;
-      } else {
+      final ping = Ping(urlTest, count: countPing);
+      final pingData = await ping.stream.last.timeout(
+        Duration(seconds: timeOutIntents),
+      );
+      if (showLogs) {
+        log('Running PING ===== > $pingData');
+      }
+      try {
+        if (pingData.summary?.transmitted == pingData.summary?.received) {
+          return InternetStatusConnection.withInternet;
+        } else if (pingData.summary!.transmitted > 0 &&
+            pingData.summary!.received > 0) {
+          return InternetStatusConnection.unstableInternet;
+        } else {
+          return InternetStatusConnection.withoutInternet;
+        }
+      } catch (e) {
         return InternetStatusConnection.withoutInternet;
       }
-    } catch (e) {
-      return InternetStatusConnection.withoutInternet;
+    } catch (ex) {
+      log(ex.toString());
+      rethrow;
     }
   }
 
@@ -131,7 +133,7 @@ class NetworkTypeReachability {
           yield globalStatusConnection;
         }
       } catch (error) {
-        log(error);
+        log(error.toString());
       }
       await Future.delayed(const Duration(seconds: 5));
     }
