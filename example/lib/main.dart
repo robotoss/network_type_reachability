@@ -8,7 +8,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -18,12 +18,12 @@ class _MyAppState extends State<MyApp> {
   String _networkTypeStatic = 'Unknown';
 
   String _networkTypeSuscription = 'Unknown';
-  StreamSubscription<NetworkStatus> subscriptionNetworkType;
+  StreamSubscription<NetworkStatus>? subscriptionNetworkType;
 
   String connectivityInternetStatic = 'Unknown';
 
   String connectivityInternetSuscription = 'Unknown';
-  StreamSubscription<InternetStatusConnection> subscriptionInternetConnection;
+  StreamSubscription<InternetStatusConnection>? subscriptionInternetConnection;
 
   @override
   void initState() {
@@ -78,8 +78,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     super.dispose();
-    subscriptionNetworkType.cancel();
-    subscriptionInternetConnection.cancel();
+    subscriptionNetworkType?.cancel();
+    subscriptionInternetConnection?.cancel();
     NetworkTypeReachability().listenInternetConnection = false;
   }
 
@@ -233,8 +233,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Expanded _expandedContainerRow({
-    @required List<Widget> children,
-    Color color = Colors.transparent,
+    required List<Widget> children,
+    Color? color = Colors.transparent,
     int flex = 4,
   }) {
     return Expanded(
@@ -249,7 +249,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Container _box({
-    Widget child,
+    required Widget child,
     Color color = Colors.transparent,
   }) {
     return Container(
