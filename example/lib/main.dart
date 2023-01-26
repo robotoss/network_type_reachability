@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
 
   _listenNetworkStatus() async {
     subscriptionNetworkType =
-        NetworkTypeReachability().onNetworkStateChanged.listen((event) {
+        NetworkTypeReachability.instance.onNetworkStateChanged.listen((event) {
       setState(() {
         _networkTypeSuscription = "$event";
       });
@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   _listenInternetConnection() async {
-    subscriptionInternetConnection = NetworkTypeReachability()
+    subscriptionInternetConnection = NetworkTypeReachability.instance
         .getStreamInternetConnection(showLogs: false)
         .listen((event) {
       setState(() {
@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> {
 
   _getCurrentNetworkStatus() async {
     NetworkStatus status =
-        await NetworkTypeReachability().currentNetworkStatus();
+        await NetworkTypeReachability.instance.currentNetworkStatus();
     switch (status) {
       case NetworkStatus.unreachable:
       //unreachable
@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
     subscriptionNetworkType?.cancel();
     subscriptionInternetConnection?.cancel();
-    NetworkTypeReachability().listenInternetConnection = false;
+    NetworkTypeReachability.instance.listenInternetConnection = false;
   }
 
   @override
@@ -190,7 +190,7 @@ class _MyAppState extends State<MyApp> {
                             connectivityInternetStatic = 'loading...';
                             setState(() {});
                             InternetStatusConnection data =
-                                await NetworkTypeReachability()
+                                await NetworkTypeReachability.instance
                                     .getInternetStatusConnection();
                             print(data);
                             print('#=======> finalizando');
@@ -274,13 +274,10 @@ class _MyAppState extends State<MyApp> {
     switch (data) {
       case 'Unknown':
         return Colors.yellow.shade100;
-        break;
       case 'NetworkStatus.unreachable':
         return Colors.red.shade100;
-        break;
       default:
         return Colors.green.shade100;
-        break;
     }
   }
 
@@ -291,19 +288,14 @@ class _MyAppState extends State<MyApp> {
     switch (data) {
       case 'Unknown':
         return Colors.yellow.shade100;
-        break;
       case 'InternetStatusConnection.withoutInternet':
         return Colors.red.shade100;
-        break;
       case 'InternetStatusConnection.withInternet':
         return Colors.green.shade100;
-        break;
       case 'InternetStatusConnection.unstableInternet':
         return Colors.brown.shade100;
-        break;
       default:
         return Colors.yellow.shade100;
-        break;
     }
   }
 }
