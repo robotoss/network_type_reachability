@@ -123,7 +123,7 @@ class NetworkTypeReachability {
 
   Stream<InternetStatusConnection> getStreamInternetConnection(
       {showLogs = false}) async* {
-    InternetStatusConnection globalStatusConnection;
+    InternetStatusConnection? globalStatusConnection;
     while (listenInternetConnection) {
       try {
         InternetStatusConnection statusConnection =
